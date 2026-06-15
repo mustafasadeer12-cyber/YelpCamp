@@ -2,8 +2,6 @@ if (process.env.NODE_ENV !== "production") {
     require('dotenv').config()
 }
 
-console.log(process.env.SECRET)
-console.log(process.env.API_KEY)
 
 
 const express = require('express')
@@ -93,6 +91,15 @@ app.use('/campgrounds/:id/reviews', reviewsRoutes)
 app.get('/', (req, res) => {
     res.render('home')
    })
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.error('Full Error Object:', err);
+    console.error('Error Message:', err.message || 'No message');
+    console.error('Error Stack:', err.stack);
+    const { statusCode = 500 } = err;
+    res.status(statusCode).render('error', { err })
+})
 
 
 

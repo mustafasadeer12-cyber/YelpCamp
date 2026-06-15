@@ -1,3 +1,10 @@
+if (process.env.NODE_ENV !== "production") {
+    require('dotenv').config()
+}
+
+
+
+
 const express = require('express');
 const router = express.Router();
 const catchAsync = require('../utils/catchAsync')
@@ -5,19 +12,20 @@ const Campground = require('../models/campground')
 const {storeReturnTo ,isLoggedIn, validateCampground, isAuthor} = require('../middleware')
 const campgrounds = require('../controllers/campgrounds')
 const multer = require('multer')
-const upload = multer({dest: 'uploads/'})
+const {storage} = require('../cloudinary')
+const upload = multer({ storage })
 
 
 
 router.route('/')
     .get(catchAsync(campgrounds.index))
-    .post(upload.array('image'), (req, res, next) => {
-        console.log('POST / route hit')
-        console.log('req.body:', req.body)
-        console.log('req.files:', req.files)
-        res.send('it worked!')
-    })
-    // .post(isLoggedIn, validateCampground, catchAsync(campgrounds.createNewCampground));
+    .post(isLoggedIn, upload.array('image'), (req, res) => {
+        console.log(req.body)
+        console.log('image' , req.files)
+        res.send('yaaaay!')
+    });
+
+
 
 router.get('/new',isLoggedIn, campgrounds.renderNewForm)
  

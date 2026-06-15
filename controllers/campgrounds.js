@@ -17,7 +17,7 @@ module.exports.createNewCampground = async (req, res) => {
     // console.log('--- DEBUGGING BUG #1 ---');
     // console.log('1. req.user object:', req.user);
     // console.log('2. req.user._id exact value:', req.user._id);
-    
+   
     const campground = new Campground(req.body.campground);
     campground.author = req.user._id;
     
