@@ -13,23 +13,21 @@ module.exports.renderNewForm = (req, res) => {
 
 
 module.exports.createNewCampground = async (req, res) => {
-    // if(!req.body.campground) throw new ExpressError('Invalid Campground')
+    const campground = new Campground(req.body.campground);
+    campground.images = req.files.map(f => ({ url: f.path, filename: f.filename}));
+    campground.author = req.user._id;
+    console.log(campground)
+    await campground.save();
+    req.flash('success', 'Successfully Made a New Camp!');
+    res.redirect(`/campgrounds/${campground._id}`);
+    
+     // console.log('3. Campground object BEFORE save:', campground);
+      // if(!req.body.campground) throw new ExpressError('Invalid Campground')
     // console.log('--- DEBUGGING BUG #1 ---');
     // console.log('1. req.user object:', req.user);
     // console.log('2. req.user._id exact value:', req.user._id);
-   
-    const campground = new Campground(req.body.campground);
-    campground.author = req.user._id;
-    
-    // console.log('3. Campground object BEFORE save:', campground);
-    
-    await campground.save();
-    
     // console.log('4. Campground object AFTER save:', campground);
     // console.log('------------------------');
-
-    req.flash('success', 'Successfully Made a New Camp!');
-    res.redirect(`/campgrounds/${campground._id}`);
 }
 
 
