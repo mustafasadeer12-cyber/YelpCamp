@@ -13,8 +13,10 @@ console.log("Cloudinary Key Loaded:", process.env.CLOUDINARY_KEY);
 
 const storage = new CloudinaryStorage({
     cloudinary,
+    params: {
     folder: 'YelpCamp',
     allowedFormats:['jpg', 'jpeg', 'png']
+}
 })
 
 module.exports = {
