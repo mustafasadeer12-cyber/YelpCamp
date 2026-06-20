@@ -35,7 +35,7 @@ module.exports.storeReturnTo = (req, res, next) => {
 
 
 module.exports.isLoggedIn = (req,res, next) => {
-    console.log('REQ.USER...', req.user)
+    // console.log('REQ.USER...', req.user)
     if(!req.isAuthenticated()) {
         req.session.returnTo = req.originalUrl
             req.flash('error', 'you must sign in')
