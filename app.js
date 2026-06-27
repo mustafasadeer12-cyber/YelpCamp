@@ -10,7 +10,7 @@ const path = require('path')
 const mongoose = require('mongoose')
 const methodOverride = require ('method-override')
 const Campground = require('./models/campground')
-const session = require('express-session')
+
 const ejsMate = require('ejs-mate')
 const flash = require('connect-flash')
 const ExpressError = require('./utils/ExpressError')
@@ -18,15 +18,27 @@ const Joi = require('joi')
 const passport = require('passport');
 const LocalStrategy = require('passport-local')
 const User = require('./models/user')
-const mongoSanitize = require('express-mongo-sanitize');
+
+
 
 const helmet = require('helmet')
+
 const userRoutes = require('./routes/users')
 const campgroundsRoutes = require('./routes/campgrounds')
 const reviewsRoutes = require('./routes/reviews')
 
+const mongoSanitize = require('express-mongo-sanitize');
+const session = require('express-session')
+const { MongoStore } = require('connect-mongo');
 
-mongoose.connect('mongodb://127.0.0.1:27017/MoeYelpCamp');
+// const dbUrl = process.env.DB_URL
+// mongoose.connect(dbUrl);
+
+
+const dbLocal = 'mongodb://127.0.0.1:27017/MoeYelpCamp'
+
+mongoose.connect(dbLocal);
+
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
@@ -111,14 +123,24 @@ app.use(
 );
 
 
+const store = MongoStore.create({
+    mongoUrl: dbLocal,
+    touchAfter: 24 * 60 * 60,
+    crypto: {
+        secret: 'thisshouldbeabettersecret!'
+    }
+});
+
+
 const sessionConfig = {
+    store,
     name:'session',
     secret: 'thisshouldnotbethesecret!',
     resave: false,
     saveUninitialized: true,
     cookie: {
         httpOnly: true,
-        // secure: true,
+        // secure: true, // we use this only in PRODUCTION. HTTPS.
         expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
         maxAge: 1000 * 60 * 60 * 24 * 7
     }
@@ -140,7 +162,7 @@ passport.deserializeUser(User.deserializeUser());
 
 app.use((req, res, next) => {
     // console.log(req.session)
-    console.log(req.query)
+    // console.log(req.query)
     res.locals.returnTo = req.session.returnTo
     res.locals.currentUser = req.user
     res.locals.success = req.flash('success')
