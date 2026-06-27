@@ -31,13 +31,13 @@ const mongoSanitize = require('express-mongo-sanitize');
 const session = require('express-session')
 const { MongoStore } = require('connect-mongo');
 
-// const dbUrl = process.env.DB_URL
+const dbUrl = process.env.DB_URL || 'mongodb://127.0.0.1:27017/MoeYelpCamp'
 // mongoose.connect(dbUrl);
 
 
-const dbLocal = 'mongodb://127.0.0.1:27017/MoeYelpCamp'
+// const dbLocal = 'mongodb://127.0.0.1:27017/MoeYelpCamp'
 
-mongoose.connect(dbLocal);
+mongoose.connect(dbUrl);
 
 
 const db = mongoose.connection;
@@ -122,12 +122,14 @@ app.use(
     })
 );
 
+const secret = process.env.SECRET || 'thisshouldbeabettersecret!'
+
 
 const store = MongoStore.create({
-    mongoUrl: dbLocal,
+    mongoUrl: dbUrl,
     touchAfter: 24 * 60 * 60,
     crypto: {
-        secret: 'thisshouldbeabettersecret!'
+        secret
     }
 });
 
@@ -135,7 +137,7 @@ const store = MongoStore.create({
 const sessionConfig = {
     store,
     name:'session',
-    secret: 'thisshouldnotbethesecret!',
+    secret,
     resave: false,
     saveUninitialized: true,
     cookie: {
@@ -205,9 +207,9 @@ app.use((err, req, res, next) => {
     res.status(statusCode).render('error', { err })
 })
 
-
-app.listen(3000, () => {
-    console.log('THIS IS PORT 3000')
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+    console.log(`This is port ${port}`)
    })
 
 

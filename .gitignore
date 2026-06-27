@@ -6,4 +6,6 @@ npm-debug.log
 uploads
 campgroundImages
 playground.js
-pic.jpg
+.vscode
+.vercel
+.vercelignore
