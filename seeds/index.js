@@ -5,6 +5,12 @@ const Campground = require('../models/campground');
 const cities = require('./cities')
 const { places, descriptors } = require('./seedHelpers')
 
+const cloudinary = require('cloudinary').v2
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_KEY,
+    api_secret: process.env.CLOUDINARY_SECRET
+});
 
 const dbUrl = process.env.DB_URL || 'mongodb://127.0.0.1:27017/MoeYelpCamp'
 
@@ -24,11 +30,47 @@ function sample(array) {
 }
 
 
+// const sampleImages = [
+//     {
+//         url: 'https://res.cloudinary.com/dt4dettlr/image/upload/v1781802303/YelpCamp/mwomoystbd9rrqc9wae5.jpg',
+//         filename: 'YelpCamp/mwomoystbd9rrqc9wae5',
+//     },
+//     {
+//         url: 'https://res.cloudinary.com/dt4dettlr/image/upload/v1781802303/YelpCamp/z9az3b8nictcs6g5utjt.jpg',
+//         filename: 'YelpCamp/z9az3b8nictcs6g5utjt',
+//     },
+//     {
+//         url: 'https://res.cloudinary.com/dt4dettlr/image/upload/v1781802303/YelpCamp/hey0fjzl7kli1sseul4a.jpg',
+//         filename: 'YelpCamp/hey0fjzl7kli1sseul4a',
+//     },
+//     {
+//         url: 'https://res.cloudinary.com/dt4dettlr/image/upload/v1781802303/YelpCamp/hxfhbv88c5oqn11vysna.jpg',
+//         filename: 'YelpCamp/hxfhbv88c5oqn11vysna',
+//     },
+
+// ];
+
+
+
+    
 const seedDB = async() => {
+
+    const { resources } = await cloudinary.search
+        .expression('folder:YelpCamp')
+        .max_results(30)
+        .execute();
+
+        const sampleImages = resources.map(img => ({
+        url: img.secure_url,
+        filename: img.public_id
+    }));
+
     await Campground.deleteMany({});
+    
     for(let i = 0; i < 25; i++) {
         const random1000 = Math.floor(Math.random() * 1000);
         const price = Math.floor(Math.random() * 20 ) + 10;
+        
         const camp = new Campground ({
             author:'6a4022eb28be9d60f8f0e522',
             location: `${cities[random1000].city}, ${cities[random1000].state}`,
@@ -42,28 +84,12 @@ const seedDB = async() => {
                 ]
             },
             price,
-            images:  [{
-            url: 'https://res.cloudinary.com/dt4dettlr/image/upload/v1781802303/YelpCamp/mwomoystbd9rrqc9wae5.jpg',
-             filename: 'YelpCamp/mwomoystbd9rrqc9wae5',
-      
-            },
-            {
-             url: 'https://res.cloudinary.com/dt4dettlr/image/upload/v1781802303/YelpCamp/z9az3b8nictcs6g5utjt.jpg',
-            filename: 'YelpCamp/z9az3b8nictcs6g5utjt',
-      
-              },
-             {
-             url: 'https://res.cloudinary.com/dt4dettlr/image/upload/v1781802303/YelpCamp/hey0fjzl7kli1sseul4a.jpg',
-             filename: 'YelpCamp/hey0fjzl7kli1sseul4a',
-      
-             },
-            {
-             url: 'https://res.cloudinary.com/dt4dettlr/image/upload/v1781802303/YelpCamp/hxfhbv88c5oqn11vysna.jpg',
-            filename: 'YelpCamp/hxfhbv88c5oqn11vysna',
-            }
+            images: [
+                sample(sampleImages),
+                sample(sampleImages)
             ]
-
         })
+        
         await camp.save();
     }
 }
