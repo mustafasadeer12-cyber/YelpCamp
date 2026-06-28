@@ -1,13 +1,15 @@
 const User = require('../models/user')
 
 module.exports.renderRegisterForm =  (req, res) => {
-    res.render('users/register')
+    // res.render('users/register')
+    req.flash('error', 'Under maintenance, Registration is temporarily disabled')
+    return res.redirect('/campgrounds')
 }
 
 
 module.exports.register = async(req, res, next) => {
     req.flash('error', 'Under maintenance')
-    return res.redirect('/')
+    return res.redirect('/campgrounds')
    
     try {
     const { username, email, password} =  req.body
